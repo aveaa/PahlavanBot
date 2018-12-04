@@ -319,7 +319,7 @@ client.on('message', (message) => {
 
       const helpemb = new Discord.RichEmbed()
       .setAuthor(client.user.username, client.user.displayAvatarURL)
-      .setTitle('Информация по созданию ролей:')
+      //.setTitle('Информация по созданию ролей:')
       .setColor(0x00AE86)    
       .addField('Мои команды:', `\`${prefix}ping\n${prefix}serverinfo\n${prefix}avatar <пользователь>\n${prefix}autorole <название роли>\n${prefix}react <айди сообщения> <текст>\n${prefix}penis <пользователь>\n${prefix}lick <текст>\n${prefix}yoba\``, false)
       .addField('Автовыдача ролей:', `\`${autoroles.join('`, `')}\``, false)
