@@ -297,7 +297,7 @@ client.on('message', (message) => {
   if(!['ping', 'help', 'test'].includes(command) && message.channel.type === 'dm') return message.channel.send('Извините, но данная команда не доступна в личных сообщениях с ботом.');
 
   if(command === 'ping'){
-    message.channel.send(`Pong! Your ping is \`${Date.now() - message.createdTimestamp} ms\``);
+    message.channel.send(`Pong! My ping is \`${Date.now() - message.createdTimestamp} ms\``);
   }
 
   if(command === "serverinfo"){
