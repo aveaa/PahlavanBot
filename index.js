@@ -678,6 +678,7 @@ client.on('message', (message) => {
 
       if(command === 'add'){
         if(!message.member.hasPermission('MANAGE_ROLES')) return message.channel.send('У вас недостаточно прав.');
+          
     
           let cat;
     
@@ -686,6 +687,8 @@ client.on('message', (message) => {
               else return message.channel.send('Данной команды не существует');
     
           let role = message.mentions.roles.first();
+          if(!role) return message.channel.send('Пожалуйста, упомяните роль.');
+          if(role.position > message.member.highestRole.position) return message.channel.send('Вы не можете добавить роль, которая стоит выше вашей.');
     
           con.query(`CREATE TABLE IF NOT EXISTS roles_${message.guild.id} (num INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), id CHAR(18), cat TINYINT UNSIGNED)`, function (err, result) {
               if (err) throw err;
