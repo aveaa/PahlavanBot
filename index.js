@@ -696,7 +696,7 @@ client.on('message', (message) => {
           })
       };
     
-      if(command === 'delete'){
+      if(command === 'remove'){
         if(!message.member.hasPermission('MANAGE_ROLES')) return message.channel.send('У вас недостаточно прав.');
     
           let cat;
