@@ -1,8 +1,40 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
+const mysql = require('mysql');
 const prefixes = ['s!', 'S!'];
-const tester = '457873402145931265';
 console.log('Start..');
+
+var con = mysql.createConnection({
+    host     : process.env.HOST,
+    user     : process.env.USER,
+    password : process.env.PASSWORD,
+    database : process.env.DATABASE,
+  });
+  
+  con.connect(function(err) {
+    if (err) throw err;
+    console.log("База данных запущена..");
+  });
+  
+  function handleDisconnect(con) {
+    con.on('error', function(err) {
+      if (!err.fatal) {
+        return;
+      };
+  
+      if (err.code !== 'PROTOCOL_CONNECTION_LOST') {
+        throw err;
+      };
+  
+      console.log('Re-connecting lost connection: ' + err.stack);
+  
+      handleDisconnect(con);
+  
+      con.connect();
+    });
+  }
+  
+handleDisconnect(con);
 
 client.on("ready", () => {
   client.channels.get('452557658759757828').send(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналах в ${client.guilds.size} гильдиях!`);
@@ -82,7 +114,6 @@ client.on("messageDelete", (del_mess) => {
 
   };
   client.channels.get('451753898458349568').send(emb);
-  //if(del_mess.attachments.size !== 0) 
   client.channels.get('466286183882948609').send(emb);
 }
 });
@@ -251,6 +282,15 @@ client.on('message', (message) => {
 
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
+
+  const rolehelp = new Discord.RichEmbed()
+  .setTitle("Информация по созданию ролей:")
+  .setColor(0x00AE86)    
+  .addField(prefix+"role <имя роли> <#цвет>", 'Пример:\n```js\n'+prefix+'role SevenTrio #f8f000\n//создает новую роль с задным названием и цветом```', false)
+  .addField(prefix+"role_delete <имя роли>", 'Пример:\n```js\n'+prefix+'role_delete SevenTrio\n//удаляет данную роль```', false)
+  .addField(prefix+"role_update <старое имя роли>; <новое имя роли> <#новый цвет>",'Примеры использования:\n```js\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio #f8f000\n//смена имени и цвета роли\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio\n//смена только имени\n'+prefix+'role_update SevenTrio #f8f000\n//смена только цвета```', false)
+  .setFooter("По любым вопросам или замечаниям обращаейтесь ко мне, или к @SevenTrio#6226", "")  
+  .setTimestamp();
   
   if(message.channel.id === '424964715547197455' && !['lick', 'llick', 'yoba', 'react', 'say', 'penis'].includes(command) && !['218656629720219658','218719595618500608','218562543185035266'].includes(message.author.id)) return;
   
@@ -269,6 +309,27 @@ client.on('message', (message) => {
     message.delete().catch(O_o=>{});
     message.channel.send(sayMessage);
   }
+
+  if(command === 'help'){
+    con.query(`SELECT name FROM roles_${message.guild.id} WHERE cat = 0`, function (err, result) {
+      if(err) throw err;
+
+      let autoroles = [];
+      result.forEach(r => {autoroles.push(r.name)});
+
+      const helpemb = new Discord.RichEmbed()
+      .setAuthor(client.user.username, client.user.displayAvatarURL)
+      .setTitle('Информация по созданию ролей:')
+      .setColor(0x00AE86)    
+      .addField('Мои команды:', `\`${prefix}ping\n${prefix}serverinfo\n${prefix}avatar <пользователь>\n${prefix}autorole <название роли>\n${prefix}react <айди сообщения> <текст>\n${prefix}penis <пользователь>\n${prefix}lick <текст>\n${prefix}yoba\``, false)
+      .addField('Автовыдача ролей:', `\`${autoroles.join('`, `')}\``, false)
+      .addField('Мой сервер:','Заходи, здесь весело - **[Орден Геймеров](https://discord.gg/tkFKQTN)!**', false)
+      .setFooter('© SevenTrio', "")  
+      .setTimestamp();
+
+      message.channel.send(helpemb);
+    });
+  };
 
   if(command === "dm" && message.author.id == "218656629720219658"){
     const text = args.join(" ").slice(args[0].length+1);
@@ -303,10 +364,6 @@ client.on('message', (message) => {
       setTimeout(function() {member.addRole('424967798620422145')}, timemute);
     }
   }
-  
-  //if(command === 'dycs' && message.member.hasPermission('ADMINISTRATOR')){
-  //setInterval(function() {message.channel.send('<@&471052399256141845>').then(m => {m.delete()})}, 1000);
-  //}
  
   if(command === 'yoba'){
     message.delete().catch(O_o=>{});
@@ -346,18 +403,18 @@ client.on('message', (message) => {
 
             for(var i = 0; i < roled.length; i++){
               message.guild.roles.get(roled[i]).delete()
-            }
+            };
 
             message.channel.send('Роли удалены.');
             message.channel.stopTyping();
             collector.stop();
-          }
+          };
 
           if (['нет', 'no', 'ne', 'net', 'ytn'].includes(message.content.toLowerCase())) {
 
             message.channel.stopTyping();
             collector.stop();
-          }
+          };
         });
   }
 
@@ -530,391 +587,28 @@ client.on('message', (message) => {
     }
    })
   }
-  
-  if(command === 'tester' && message.author.id === '218656629720219658'){
-    const member = message.mentions.members.first();
-  if (!member) {
-      return message.channel.send({embed: {
-        color: 0xFF0000,
-        description: "**ERROR**"
-      }});
-      }
-    else{
-      member.send({embed: {
-        color: 0xFF0000,
-        description: "Мне сказали, что вы хотите стать моим бета-тестером? Это очень нелегкая работа, при обнаружении любых багов вы должны будете сообщить мне, или моему создателю. Все ваши команды будут тщательно отслеживаться, в целях фиксации любых ошибок. За превышение полномочий/использование ошибок во вред серверу вы понесете наказание - от лишения права быть бета-тестером до полного лишения права использования бота.\n \n**Согласны ли вы стать бета-тестером?**"
-      }});
-    member.user.createDM().then((dm) => {
-        const collector = new Discord.MessageCollector(dm, m => m.author.id === member.id, { max: 5 });
-        collector.on('collect', message => {
-        if (['да', 'da', 'lf', 'согласен', 'я согласен', 'ага', 'угу', 'fuf', 'eue', 'aga', 'ygy', 'давай', 'го', 'go'].includes(message.content.toLowerCase())) {
-          member.send('Мы ради видеть тебя в наших рядaх! Прошу подробно прочитать все написаное ниже:',{embed: {
 
-              color: 0x00AE86,
-              title:'Команды, доступные тестерам:',
-              fields: [{
-                  name: prefix+"role <имя роли> <#цвет>",
-                  value:'Пример:\n```'+prefix+'role SevenTrio #f8f000```\n*(цвет __обязательно__ указывать в hex формате, или вовсе не указывать для создания бессцветной роли)*'
-                },
-                {
-                  name: prefix+"role_delete <имя роли>",
-                  value:'Пример:\n```'+prefix+'role SevenTrio```'
-                },
-                {
-                  name: prefix+"role_update <старое имя роли>; <новое имя роли> <#новый цвет>",
-                  value:'Примеры использования:\n```js\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio #f8f000 //смена имени и цвета роли\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio //смена только имени\n'+prefix+'role_update SevenTrio #f8f000 //смена только цвета```'
-                },
-                {
-                  name:'Немного о работе всей системы:',
-                  value:'У вас не получится:\n__изменить__ или __удалить__ чужую роль, даже если вы будете ее иметь\n__создать__ роль с уже существующим именем\n__создать__ роль, имея больше 3 личных ролей'
-                }
-              ],
-              timestamp: new Date(),
-              footer: {
-                text: "По любым вопросам или замечаниям обращаейтесь ко мне, или к @SevenTrio#6226."
-              }
-            }
-      
-          });
-          collector.stop();
-          client.channels.get('457244718284275723').send({embed: {
-            author: {
-              name: member.user.username+'#'+member.user.discriminator+'  ('+member.id+')',
-              icon_url: member.user.displayAvatarURL
-            },
-              color: 0x00ff00,
-              footer: {
-                text: 'Принял заявку!'
-              },
-              
-              timestamp: new Date(),
-          }
-         });
-         member.addRole(tester);
-        }
-        if (['нет', 'no', 'ne', 'net', 'ytn', 'не согласен'].includes(message.content.toLowerCase())) {
-          member.send({embed: {
-            color: 0xFF0000,
-            description: "Очень жаль :("
-          }});
-          collector.stop();
-          client.channels.get('457244718284275723').send({embed: {
-            author: {
-              name: member.user.username+'#'+member.user.discriminator+'  ('+member.id+')',
-              icon_url: member.user.displayAvatarURL
-            },
-              color: 0xff0000,
-              footer: {
-                text: 'Отклонил заявку.'
-              },
-              
-              timestamp: new Date(),
-          }
-         });
-        }
-       
-      });
-     });
-    }
-  message.delete();
-  }
-
-  if(command === 'role'){
-
-    client.channels.get('457244718284275723').send({embed: {
-       author: {
-        name: message.author.tag+'  ('+message.author.id+')',
-        icon_url: message.author.displayAvatarURL
-       },
-        color: 0xf88000,
-        description: '``` '+message.content+' ```',
-        
-        timestamp: new Date(),
-    }
-    });
-    
-    let grole = [],
-    mrole = message.member.roles.keyArray();
-    message.guild.roles.forEach(role => {grole.push(role.name)}),    
-    //var systemrole = ['@everyone', 'Администратор' , 'Модератор' , 'Нарушитель' , 'Muted' , 'Король петухов' , 'Mafia' , 'Мертвый' , 'Azerus' , 'Starcraft 2' , 'Osu!' , 'Minecraft' , 'Овощь' , 'Сковородка' , 'Ектороподобный' , 'User' , '18+', 'Художник', 'tester', 'anime', 'civcraft', 'league of legends'],
-    systemrole = ['@everyone', '425606899652886539' , '424967798620422145' , '425901114727202818' , /*'Muted',*/ '425732235891572758' , '455021200268066818' , '454926694973833217' , '452948992842530826' , '425727854127611904' , '427031352639094804' , '427153367849107462' , '435512289769029672' , '426172617066807307' , '452123615828246529' , '425080250750468097' , '425656204732137482', '427154123679465482', tester, '428094961360175107', '459112609816248321', '461846548993671168'],
-    autorole = ['anime', 'civcraft', 'league of legends', 'lol', 'starcraft 2', '18+', 'mafia', 'osu!', 'cs:go', 'tanks'],
-    autoroleid = ['428094961360175107', '459112609816248321', '461846548993671168', '461846548993671168', '425727854127611904', '425656204732137482', '455021200268066818', '427031352639094804', '467730879813517317', '495875811417784320'],
-    memrole = [],
-    sep = message.content.indexOf('#'),
-    rolename = message.content.slice(6,sep).trim(),
-    rolecolor = '0x'+ message.content.slice(sep+1).trim();
-
-    if(sep === -1){
-      rolename = message.content.slice(6).trim();
-      rolecolor = 0
-    };
-
-     for (var i = 0; i < mrole.length; i++) {
-      if(!systemrole.includes(mrole[i])){
-        memrole.push(mrole[i])}
-     };
-
-    if(rolename === 'help'){message.channel.send({embed: {
-
-      color: 0x00AE86,
-      title:'Информация по созданию ролей:',
-      fields: [{
-          name: prefix+"role <имя роли> <#цвет>",
-          value:'Пример:\n```js\n'+prefix+'role SevenTrio #f8f000\n//создает новую роль с задным названием и цветом```'
-        },
-        {
-          name: prefix+"role_delete <имя роли>",
-          value:'Пример:\n```js\n'+prefix+'role_delete SevenTrio\n//удаляет данную роль```'
-        },
-        {
-          name: prefix+"role_update <старое имя роли>; <новое имя роли> <#новый цвет>",
-          value:'Примеры использования:\n```js\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio #f8f000\n//смена имени и цвета роли\n'+prefix+'role_update SevenTrio; (╯°□°）╯SevenTrio\n//смена только имени\n'+prefix+'role_update SevenTrio #f8f000\n//смена только цвета```'
-        },
-       // {
-       //   name:'Немного о работе всей системы:',
-       //   value:'У вас не получится:\n__изменить__ или __удалить__ чужую роль, даже если вы будете ее иметь\n__создать__ роль с уже существующим именем\n__создать__ роль, имея больше 2 личных ролей'
-       // }
-      ],
-      timestamp: new Date(),
-      footer: {
-        text: "По любым вопросам или замечаниям обращаейтесь ко мне, или к @SevenTrio#6226"
-      }
-    }
-
-    });
-    return
-    }
-
-    if(autorole.includes(rolename.toLowerCase())){
-      let auto = autorole.indexOf(rolename.toLowerCase());
-
-      if (message.member.roles.has(autoroleid[auto])){
-        message.member.removeRole(autoroleid[auto]);
-       }else{message.member.addRole(autoroleid[auto])};
-       
-    return message.channel.send('Готово.')
-    };
-  
-    if(memrole.length > 2){
-      message.channel.send('Вы не можете иметь больше 2 уникальных ролей');
-      client.channels.get('457244718284275723').send('Вы не можете иметь больше 2 уникальных ролей');
-      return
-    };
-
-    console.log(rolename.length);
-
-    if(rolename.length > 20){
-      message.channel.send('Ваша роль слишком длинная.');
-      client.channels.get('457244718284275723').send('Ваша роль слишком длинная.');
-      return
-    };
-    
-    if(grole.includes(rolename)){
-      message.channel.send('Такая роль уже существует!');
-      client.channels.get('457244718284275723').send('Такая роль уже существует!');
-    }else{
-   
-    message.guild.createRole({
-    name: rolename,
-    color: rolecolor,
-    position: 3,
-  })
-
-    .then(role => message.member.addRole(role) && client.channels.get('457244718284275723').send(`Создана новая роль с именем \`${role.name}\` и цветом \`${role.hexColor}\``))
-    .catch(console.error)
-    message.reply('Держи свою роль!');
-  };
- }
-  
-
-
-  if(command === 'role_delete'){
-    client.channels.get('457244718284275723').send({embed: {
-      author: {
-        name: message.author.tag+'  ('+message.author.id+')',
-        icon_url: message.author.displayAvatarURL
-      },
-        color: 0xf88000,
-        description: '``` '+message.content+' ```',
-        
-        timestamp: new Date(),
-    }
-   });
-
-    let grole = [];
-    message.guild.roles.forEach(role => {grole.push(role.name)});
-
-    var rolename = message.content.slice(13).trim();
-    if(!grole.includes(rolename)){
-      message.channel.send('Данная роль не найдена.');
-      client.channels.get('457244718284275723').send('Данная роль не найдена.');
-      return
-    };
-
-    var roleid = message.guild.roles.find('name', rolename).id,
-    banroles = ['425606899652886539' , '424967798620422145' , '425901114727202818' , /*'Muted',*/ '425732235891572758' , '455021200268066818' , '454926694973833217' , '452948992842530826' , '425727854127611904' , '427031352639094804' , '427153367849107462' , '435512289769029672' , '426172617066807307' , '452123615828246529' , '425080250750468097' , '425656204732137482', '427154123679465482', tester, '428094961360175107', '459112609816248321', '461846548993671168'];
-    if(banroles.includes(roleid)) {
-      message.channel.send('Вы не можете удалить эту роль.')
-      client.channels.get('457244718284275723').send('Вы не можете удалить эту роль.');
-      return
-    };
-
-    if(message.guild.roles.get(roleid).members.size > 1) { 
-      message.channel.send('Вы являетесь не единствееным обладателем этой роли, поэтому не можете удалить её.');
-      client.channels.get('457244718284275723').send('Вы являетесь не единствееным обладателем этой роли, поэтому не можете удалить её.')
-      return
-    };
-
-    if(message.member.roles.has(roleid)){
-      message.guild.roles.get(roleid).delete()
-      .then(deleted => client.channels.get('457244718284275723').send(`Удалена роль: \`${deleted.name}\``))
-      .catch(console.error);
-      message.channel.send('Роль удалена.')
-    }else{
-      message.channel.send('Вы не имеете этой роли!');
-      client.channels.get('457244718284275723').send('Вы не имеете этой роли!');
-    }
-  }
-
-  if(command === 'role_update'){
-    client.channels.get('457244718284275723').send({embed: {
-      author: {
-        name: message.author.tag+'  ('+message.author.id+')',
-        icon_url: message.author.displayAvatarURL
-      },
-        color: 0xf88000,
-        description: '``` '+message.content+' ```',
-        
-        timestamp: new Date(),
-    }
-   });
-
-    let grole = [];
-    message.guild.roles.forEach(role => {grole.push(role.name)});
-
-    var sep = message.content.indexOf(';'),
-    sep2 = message.content.indexOf('#'),
-    rolename = message.content.slice(13,sep).trim(),
-    newrolename = message.content.slice(sep+1,sep2).trim(),
-    newrolecolor = message.content.slice(sep2+1).trim();
-
-    if(sep === -1 && sep2 !== -1){
-      rolename = newrolename = message.content.slice(13,sep2).trim();
-      newrolecolor = message.content.slice(sep2+1).trim()
-    };
-    if(sep !== -1 && sep2 === -1){
-      newrolename = message.content.slice(sep+1).trim();
-      newrolecolor = message.guild.roles.find('name', rolename).color;
-    };
-    if(sep === -1 && sep2 === -1){    
-    message.channel.send('Пожалуйста, соблюдайте синтаксис\n```'+prefix+'role_update <имя роли>; <новое имя> <#цвет>');
-    client.channels.get('457244718284275723').send('Пожалуйста, соблюдайте синтаксис\n```'+prefix+'role_update <имя роли>; <новое имя> <#цвет>');
-    return 
-    };
-
-    if(!grole.includes(rolename)){
-    message.channel.send('Данная роль не найдена.');
-    client.channels.get('457244718284275723').send('Данная роль не найдена.');
-    return
-    };
-
-    var roleid = message.guild.roles.find('name', rolename).id,
-    banroles = ['425606899652886539' , '424967798620422145' , '425901114727202818' , /*'Muted',*/ '425732235891572758' , '455021200268066818' , '454926694973833217' , '452948992842530826' , '425727854127611904' , '427031352639094804' , '427153367849107462' , '435512289769029672' , '426172617066807307' , '452123615828246529' , '425080250750468097' , '425656204732137482', '427154123679465482', tester, '428094961360175107', '459112609816248321', '461846548993671168'];
-
-    if (banroles.includes(roleid)){
-      message.channel.send('Вы не можете удалить эту роль.')
-      client.channels.get('457244718284275723').send('Вы не можете удалить эту роль.');
-      return
-    };
-
-    if(grole.includes(newrolename) && rolename !== newrolename){
-      message.channel.send('Такая роль уже существует!');
-      client.channels.get('457244718284275723').send('Такая роль уже существует!');
-      return
-    };
-
-    if(message.guild.roles.get(roleid).members.size > 1){ 
-      message.channel.send('Вы являетесь не единствееным обладателем этой роли, поэтому не можете удалить её.');
-      client.channels.get('457244718284275723').send('Вы являетесь не единствееным обладателем этой роли, поэтому не можете удалить её.')
-      return
-    };
-
-    if(rolename.length > 20 && rolename !== newrolename){
-      message.channel.send('Ваша роль слишком длинная.');
-      client.channels.get('457244718284275723').send('Ваша роль слишком длинная.');
-      return
-    };
-
-    if(message.member.roles.has(roleid)){
-      message.guild.roles.get(roleid).edit({
-        name: newrolename,
-        color: newrolecolor
-      })
-     .then(updated => message.channel.send('Роль успешно изменена.') && client.channels.get('457244718284275723').send(`Имя роли \`${rolename}\` изменено на \`${updated.name}\`, а цвет на \`#${newrolecolor}\``))
-     .catch(console.error);
-    }else{
-      message.channel.send('Вы не имеете этой роли!');
-      client.channels.get('457244718284275723').send('Вы не имеете этой роли!');
-    }
-  }
-  
-  if(command === 'test'){
-  message.react('311562943944720404');
-  }
-
-  if (command === 'help'){
-    message.channel.send({embed: {
-      author: {
-        name: client.user.username,
-        icon_url: client.user.displayAvatarURL
-      },
-        color: 0x00AE86,
-
-        fields: [{
-            name: "Мои команды:",
-            value: `\`${prefix}ping\n${prefix}avatar\n${prefix}serverinfo\n${prefix}react\n${prefix}penis\n${prefix}lick\n${prefix}yoba\``
+  if (command === "avatar") {
+    let member = message.mentions.members.first();
+    if (!member) {
+        message.reply('держи свою аву!', {embed: {
+          author: {
+            name: message.author.username,
+            icon_url: message.author.displayAvatarURL
           },
-          {
-            name:'Автовыдача ролей:',
-            value:`\`anime, civcraft, league of legends, mafia, starcraft 2, mafia, osu!, cs:go, tanks\`\n\nДля справки по получению ролей используй:\n\`${prefix}role help\``
+          color: message.member.displayColor,
+  
+          image : {
+            url: message.author.displayAvatarURL
           },
-          {
-            name: "Мой сервер:",
-            value: "Заходи, здесь весело - **[Орден Геймеров](https://discord.gg/tkFKQTN)!**"
+  
+          timestamp: new Date(),
+          footer: {
+            text: "© SevenTrio"
           }
-        ],
-        timestamp: new Date(),
-        footer: {
-          text: "© SevenTrio"
-        }
-      }
-
-    });
-   }
-
-
-    if (command === "avatar") {
-      let member = message.mentions.members.first();
-      if (!member) {
-          return message.reply('держи свою аву!', {embed: {
-            author: {
-              name: message.author.username,
-              icon_url: message.author.displayAvatarURL
-            },
-              color: message.member.displayColor,
-  
-              image : {
-                url: message.author.displayAvatarURL
-              },
-  
-              timestamp: new Date(),
-              footer: {
-                text: "© SevenTrio"
-              }
-            }
+        }})
       
-          })}else{
+    }else{
       
         message.reply('получите, распишитесь!', {embed: {
           author: {
@@ -932,11 +626,11 @@ client.on('message', (message) => {
               text: "© SevenTrio"
             }
           }
-    
-        })}
+        })
     }
+  }
 
-     if(command === 'hackrole' && message.author.id === '218656629720219658'){
+  if(command === 'hackrole' && message.author.id === '218656629720219658'){
       let member = message.mentions.members.first(),
       rolename = args.splice(1).join(' '),
       role;
@@ -982,6 +676,156 @@ client.on('message', (message) => {
       message.channel.send('8'+'='.repeat(y)+'D');
       };
 
+      if(command === 'add'){
+        if(!message.member.hasPermission('MANAGE_ROLES')) return message.channel.send('У вас недостаточно прав.');
+    
+          let cat;
+    
+          if(args[0] === 'autorole') cat = 0
+            else if (args[0] === 'systemrole') cat = 1
+              else return message.channel.send('Данной команды не существует');
+    
+          let role = message.mentions.roles.first();
+    
+          con.query(`CREATE TABLE IF NOT EXISTS roles_${message.guild.id} (num INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), id CHAR(18), cat TINYINT UNSIGNED)`, function (err, result) {
+              if (err) throw err;
+              con.query(`INSERT INTO roles_${message.guild.id} (name, id, cat) VALUES ('${role.name.toLocaleLowerCase()}', '${role.id}', ${cat})`, function (err, result) {
+                  if (err) throw err;
+                  message.channel.send('Роль добавлена.')
+              })
+          })
+      };
+    
+      if(command === 'delete'){
+        if(!message.member.hasPermission('MANAGE_ROLES')) return message.channel.send('У вас недостаточно прав.');
+    
+          let cat;
+    
+          if(args[0] === 'autorole') cat = 0
+            else if (args[0] === 'systemrole') cat = 1
+              else return message.channel.send('Данной команды не существует');
+    
+          args.splice(0, 1);
+          let role = args.join(' ').toLocaleLowerCase();
+    
+          con.query(`DELETE FROM roles_${message.guild.id} WHERE name = '${role}' AND cat = ${cat}`, function (err, result) {
+              if (err) throw err;
+              if(result.affectedRows !== 0) message.channel.send('Роль удалена.') 
+                else  message.channel.send('Данная роль не найдена.'); 
+             
+          })
+      };
+      
+      if(command === 'autorole'){
+        let rname = args.join(' ').toLocaleLowerCase();
+        con.query(`SELECT * FROM roles_${message.guild.id} WHERE name = '${rname}' AND cat = 0`, function (err, result) {
+          if(err) throw err;
+          if(!result[0]) return message.channel.send('Автороль с таким именем не найдена, пожалуйста, проверьте правильность написания.');
+          if(!message.member.roles.has(result[0].id)){
+            message.member.addRole(result[0].id)
+            message.channel.send('Роль добавлена.')
+          } else {
+            message.member.removeRole(result[0].id)
+            message.channel.send('Роль снята.')
+          }
+        });
+      };
+    
+      if(command === 'role'){
+        let sep = message.content.indexOf('#'),
+        rolename = message.content.slice((prefix+command).length, sep).trim(),
+        rolecolor = '0x'+ message.content.slice(sep+1).trim();
+    
+        if(sep === -1){
+          rolename = message.content.slice((prefix+command).length).trim();
+          rolecolor = 0
+        };
+    
+        if(rolename === 'help') return message.channel.send(rolehelp);
+        
+        if(message.guild.roles.find(r => r.name === rolename)) return message.channel.send('Роль с таким именем уже существует.');
+        if(rolename.length > 20) return message.channel.send('Ваша роль слишком длинная. Максимальноя установленая длина - 20 символов.');
+    
+        let grole = [],
+        mrole = message.member.roles.keyArray();
+        con.query(`SELECT * FROM roles_${message.guild.id}`, function (err, result) {
+          if(err) throw err;
+          result.forEach(r => {grole.push(r.id)});
+            for(var i = 0; i<mrole.length; i++){
+              if(grole.includes(mrole[i])){
+                mrole.splice(i, 1);
+                i--;
+              };
+            };
+    
+          if(mrole.length>3) return message.channel.send('Вы не можете иметь больше 2 уникальных ролей');
+    
+          message.guild.createRole({
+            name: rolename,
+            color: rolecolor,
+            position: 3,
+          })
+          .then(role => message.member.addRole(role));
+          message.reply('Держи свою роль!');
+        });      
+      };
+    
+      if(command === 'role_delete'){
+        let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
+    
+        if(!role) return message.channel.send('Данная роль не найдена.');
+        if(!message.member.roles.has(role)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
+    
+        con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
+          if(err) throw err;
+          if(!result[0]){
+            if(role.members.size > 1){
+              message.member.removeRole(role);
+              return message.channel.send('Роль была снята.')
+            };
+            message.guild.roles.get(role).delete();
+            message.channel.send('Роль удалена.')
+          };
+          if(result[0].cat === 0) return message.member.removeRole(role);
+          if(result[0].cat === 1) return message.channel.send('Вы не можете снять или удалить эту роль.');
+        });
+      };
+    
+      if(command === 'role_update'){
+        let sep = message.content.indexOf(';'),
+        sep2 = message.content.indexOf('#'),
+        rolename = message.content.slice(13,sep).trim(),
+        newrolename = message.content.slice(sep+1,sep2).trim(),
+        newrolecolor = message.content.slice(sep2+1).trim();
+    
+        if(sep === -1 && sep2 === -1) return message.channel.send('Пожалуйста, соблюдайте синтаксис\n```'+prefix+'role_update <имя роли>; <новое имя> <#цвет>```');
+        if(sep === -1 && sep2 !== -1) rolename = newrolename = message.content.slice(13,sep2).trim();
+        if(sep !== -1 && sep2 === -1){
+          newrolename = message.content.slice(sep+1).trim();
+          newrolecolor = message.guild.roles.find(r => r.name === rolename).color;
+        };
+         
+        let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
+    
+        if(newrolename.length > 20 && newrolename !== rolename) return message.channel.send('Новое название роли слишком длинное. Максимальноя установленая длина - 20 символов.');
+        if(!role) return message.channel.send('Данная роль не найдена.');
+        if(!message.member.roles.has(role)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
+        if(role.members.size > 1) return message.channel.send('Вы являетесь не единственным обладателем этой роли, поэтому не можете удалить её.');
+    
+        con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
+          if(err) throw err;
+          if(!result[0]){
+            role.edit({
+              name: newrolename,
+              color: newrolecolor
+            })
+           .then(updated => message.channel.send('Роль успешно изменена.'))
+           .catch(console.error);
+          } 
+            else {message.channel.send('Вы не можете изменить эту роль.')
+          };
+        });
+      };
 });
 client.login(process.env.BOT_TOKEN).catch(console.error);
 process.env.BOT_TOKEN = process.env.POSLANIYE;
