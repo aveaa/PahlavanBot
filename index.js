@@ -777,7 +777,7 @@ client.on('message', (message) => {
         let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
     
         if(!role) return message.channel.send('Данная роль не найдена.');
-        if(!message.member.roles.has(role)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
+        if(!message.member.roles.has(role.id)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
     
         con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
           if(err) throw err;
