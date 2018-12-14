@@ -782,14 +782,14 @@ client.on('message', (message) => {
         con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
           if(err) throw err;
           if(!result[0]){
-            if(role.members.size > 1){
+            if(role.members.size > 1 || result[0].cat === 0){
               message.member.removeRole(role);
               return message.channel.send('Роль была снята.')
             };
             message.guild.roles.get(role).delete();
             message.channel.send('Роль удалена.')
           };
-          if(result[0].cat === 0) return message.member.removeRole(role);
+          //if(result[0].cat === 0) return message.member.removeRole(role);
           if(result[0].cat === 1) return message.channel.send('Вы не можете снять или удалить эту роль.');
         });
       };
