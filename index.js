@@ -774,6 +774,7 @@ client.on('message', (message) => {
       };
     
       if(command === 'role_delete'){
+        return message.channel.send('Извените, но данная команда не работает в данный момент. <@&424967798620422145> призываю вас!');
         let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
     
         if(!role) return message.channel.send('Данная роль не найдена.');
