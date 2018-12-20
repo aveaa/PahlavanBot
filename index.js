@@ -187,7 +187,7 @@ async function multipleReact(message, arr) {
   }
 }
 
-client.on('message', (message) => {
+client.on('message', async (message) => {
 
    if (message.channel.type === 'dm'){
     if ([client.user.id, '218656629720219658'].includes(message.author.id)) return;
