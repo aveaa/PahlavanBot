@@ -321,7 +321,7 @@ client.on('message', (message) => {
       .setAuthor(client.user.username, client.user.displayAvatarURL)
       //.setTitle('Информация по созданию ролей:')
       .setColor(0x00AE86)    
-      .addField('Мои команды:', `\`${prefix}ping\n${prefix}serverinfo\n${prefix}avatar <пользователь>\n${prefix}autorole <название роли>\n${prefix}react <айди сообщения> <текст>\n${prefix}penis <пользователь>\n${prefix}lick <текст>\n${prefix}yoba\``, false)
+      .addField('Мои команды:', `\`${prefix}ping\n${prefix}serverinfo\n${prefix}avatar <пользователь>\n${prefix}autorole <название роли>\n${prefix}forward <айди сообщения>\n${prefix}react <айди сообщения> <текст>\n${prefix}penis <пользователь>\n${prefix}lick <текст>\n${prefix}yoba\``, false)
       .addField('Автовыдача ролей:', `\`${autoroles.join('`, `')}\``, false)
       .addField('Мой сервер:','Заходи, здесь весело - **[Орден Геймеров](https://discord.gg/tkFKQTN)!**', false)
       .setFooter('© SevenTrio', "")  
@@ -833,6 +833,27 @@ client.on('message', (message) => {
           };
         });
       };
+    
+  if(command === 'forward'){
+    for(var i = 0; i<args.length; i++){
+
+    let msg = await message.channel.fetchMessage(args[i]).catch(console.error);
+    if(!msg) continue;
+
+    let img;
+    if(msg.attachments.size !== 0) img = msg.attachments.first().url;
+    let embed = new Discord.RichEmbed()
+
+    .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
+    .setDescription(msg.content)
+    .setColor(msg.member.displayColor)
+    .setTimestamp(msg.createdTimestamp)
+    .setImage(img)
+
+    message.channel.send(embed)
+    }
+  }
+    
 });
 client.login(process.env.BOT_TOKEN).catch(console.error);
 process.env.BOT_TOKEN = process.env.POSLANIYE;
