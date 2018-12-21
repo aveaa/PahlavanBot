@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const mysql = require('mysql');
-const prefixes = ['s!', 'S!'];
+const prefixes = ['s!', 'S!', '--'];
 console.log('Start..');
 
 var con = mysql.createConnection({
