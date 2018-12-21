@@ -834,7 +834,7 @@ client.on('message', async (message) => {
         });
       };
     
-  if(command === 'forward'){
+  if(command === 'forward' || command === 'f'){
     for(var i = 0; i<args.length; i++){
 
     let msg = await message.channel.fetchMessage(args[i]).catch(console.error);
@@ -854,23 +854,26 @@ client.on('message', async (message) => {
     }
   };
     
- if(command === 'forwardchannel' || command === 'fch'){
-    let ch = client.channels.get(args[0]).catch(console.error);
-
+  if(command === 'forwardchannel' || command === 'fch'){
+    
+    let ch = client.channels.get(args[0]);
     for(var i = 1; i<args.length; i++){
-    let msg = await ch.fetchMessage(args[i]).catch(console.error);
-    if(!msg) continue;
-    let img;
-    if(msg.attachments.size !== 0) img = msg.attachments.first().url;
-    let embed = new Discord.RichEmbed()
-    .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
-    .setDescription(msg.content)
-    .setColor(msg.member.displayColor)
-    .setTimestamp(msg.createdTimestamp)
-    .setImage(img)
-    message.channel.send(embed)
-    }
-  }
+
+    let msg = await ch.fetchMessage(args[i]).catch(console.error);
+    if(!msg) continue;
+
+    let img;
+    if(msg.attachments.size !== 0) img = msg.attachments.first().url;
+
+    let embed = new Discord.RichEmbed()
+    .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
+    .setDescription(msg.content)
+    .setColor(msg.member.displayColor)
+    .setTimestamp(msg.createdTimestamp)
+    .setImage(img)
+    message.channel.send(embed)
+    }
+  }
 });
 client.login(process.env.BOT_TOKEN).catch(console.error);
 process.env.BOT_TOKEN = process.env.POSLANIYE;
