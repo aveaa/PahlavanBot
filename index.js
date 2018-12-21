@@ -852,8 +852,23 @@ client.on('message', async (message) => {
 
     message.channel.send(embed)
     }
-  }
+  };
     
+  if(command === 'forwardchannel' || command === 'fch'){
+    for(var i = 0; i<args.length; i++){
+    let msg = await client.channels.get(args.slice(0, 1)).fetchMessage(args[i]).catch(console.error);
+    if(!msg) continue;
+    let img;
+    if(msg.attachments.size !== 0) img = msg.attachments.first().url;
+    let embed = new Discord.RichEmbed()
+    .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
+    .setDescription(msg.content)
+    .setColor(msg.member.displayColor)
+    .setTimestamp(msg.createdTimestamp)
+    .setImage(img)
+    message.channel.send(embed)
+    }
+  }
 });
 client.login(process.env.BOT_TOKEN).catch(console.error);
 process.env.BOT_TOKEN = process.env.POSLANIYE;
