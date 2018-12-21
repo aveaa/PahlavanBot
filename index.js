@@ -854,9 +854,11 @@ client.on('message', async (message) => {
     }
   };
     
-  if(command === 'forwardchannel' || command === 'fch'){
-    for(var i = 0; i<args.length; i++){
-    let msg = await client.channels.get(args.slice(0, 1)).fetchMessage(args[i]).catch(console.error);
+ if(command === 'forwardchannel' || command === 'fch'){
+    let ch = client.channels.get(args[0]).catch(console.error);
+    if(!ch) return;
+    for(var i = 1; i<args.length; i++){
+    let msg = await ch.fetchMessage(args[i]).catch(console.error);
     if(!msg) continue;
     let img;
     if(msg.attachments.size !== 0) img = msg.attachments.first().url;
@@ -868,7 +870,7 @@ client.on('message', async (message) => {
     .setImage(img)
     message.channel.send(embed)
     }
-  }
+  }
 });
 client.login(process.env.BOT_TOKEN).catch(console.error);
 process.env.BOT_TOKEN = process.env.POSLANIYE;
