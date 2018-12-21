@@ -856,8 +856,8 @@ client.on('message', async (message) => {
     
  if(command === 'forwardchannel' || command === 'fch'){
     let ch = client.channels.get(args[0]).catch(console.error);
-    if(!ch) return;
-    for(var i = 1; i<args.length; i++){
+
+    for(var i = 1; i<args.length; i++){
     let msg = await ch.fetchMessage(args[i]).catch(console.error);
     if(!msg) continue;
     let img;
