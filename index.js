@@ -292,7 +292,7 @@ client.on('message', async (message) => {
   .setFooter("По любым вопросам или замечаниям обращаейтесь ко мне, или к @SevenTrio#6226", "")  
   .setTimestamp();
   
-  if(message.channel.id === '424964715547197455' && !['lick', 'llick', 'yoba', 'react', 'say', 'forward'].includes(command) && !['218656629720219658','218719595618500608','218562543185035266'].includes(message.author.id)) return;
+  if(message.channel.id === '424964715547197455' && !['lick', 'llick', 'yoba', 'react', 'say', 'forward', 'f', 'fch', 'forwardchannel'].includes(command) && !['218656629720219658','218719595618500608','218562543185035266'].includes(message.author.id)) return;
   
   if(!['ping', 'help', 'test'].includes(command) && message.channel.type === 'dm') return message.channel.send('Извините, но данная команда не доступна в личных сообщениях с ботом.');
 
