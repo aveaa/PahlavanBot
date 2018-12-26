@@ -843,7 +843,7 @@ client.on('message', async (message) => {
     .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
     .setDescription(msg.content)
     .setColor(msg.member.displayColor)
-    //.setTimestamp(msg.createdTimestamp)
+    .setTimestamp(msg.createdTimestamp)
     .setImage(img)
 
     message.channel.send(embed)
@@ -865,7 +865,7 @@ client.on('message', async (message) => {
     .setAuthor(msg.member.displayName, msg.author.displayAvatarURL)
     .setDescription(msg.content)
     .setColor(msg.member.displayColor)
-    //.setTimestamp(msg.createdTimestamp)
+    .setTimestamp(msg.createdTimestamp)
     .setImage(img)
     message.channel.send(embed)
     }
