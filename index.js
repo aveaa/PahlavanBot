@@ -743,7 +743,7 @@ client.on('message', async (message) => {
         if(rolename === 'help') return message.channel.send(rolehelp);
         
         if(message.guild.roles.find(r => r.name === rolename)) return message.channel.send('Роль с таким именем уже существует.');
-        //if(rolename.length > 20) return message.channel.send('Ваша роль слишком длинная. Максимальноя установленая длина - 20 символов.');
+        if(rolename.length > 20) return message.channel.send('Ваша роль слишком длинная. Максимальноя установленая длина - 20 символов.');
     
         let grole = [],
         mrole = message.member.roles.keyArray();
