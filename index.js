@@ -80,6 +80,7 @@ client.on("messageUpdate", (old_mess, new_mess) => {
   };
   client.channels.get('451753898458349568').send(emb);
   client.channels.get('466286183882948609').send(emb);
+  client.channels.get('528656758621863967').send(emb);
 }
 });
 
@@ -115,6 +116,7 @@ client.on("messageDelete", (del_mess) => {
   };
   client.channels.get('451753898458349568').send(emb);
   client.channels.get('466286183882948609').send(emb);
+  client.channels.get('528656758621863967').send(emb);
 }
 });
 
@@ -218,11 +220,13 @@ client.on('message', async (message) => {
    })
   }
 
-  if(['414350089226551319', '425082092838453249'].includes(message.channel.id) && !["218719595618500608", "218656629720219658"].includes(message.author.id)){
+  if(['414350089226551319', '425082092838453249', '528261560402182159'].includes(message.channel.id) && !["218719595618500608", "218656629720219658"].includes(message.author.id)){
     multipleReact(message, ['425506799408513024', '425506818601517066'])
   }
 
   if(message.author.bot) return;
+    
+  let moder = '528283273709748234';
   
   if(message.content.startsWith('-mute')){
     if(message.member.hasPermission('ADMINISTRATOR') || ['218656629720219658', '218656629720219658'].includes(message.member.id)){
@@ -233,14 +237,14 @@ client.on('message', async (message) => {
       timemute,
       x;
     if(!member) return;
-    if(!member.roles.has('424967798620422145')) return;
+    if(!member.roles.has(moder)) return;
       x = ['s', 'm', 'h', 'd'].indexOf(timetype);
     if(x === -1) return;
       timemute = Number(timevalue) * [1000, 60000, 3600000, 86400000][x];
     if(timemute > 21600000) timemute = 21600000;
     setTimeout(function() {
-      member.removeRole('424967798620422145');
-      setTimeout(function() {member.addRole('424967798620422145')}, timemute);
+      member.removeRole(moder);
+      setTimeout(function() {member.addRole(moder)}, timemute);
       }, 1000);
     }
   }
@@ -288,7 +292,7 @@ client.on('message', async (message) => {
   .setFooter("По любым вопросам или замечаниям обращаейтесь ко мне, или к @SevenTrio#6226", "")  
   .setTimestamp();
   
-  if(message.channel.id === '424964715547197455' && !['lick', 'llick', 'yoba', 'react', 'say', 'forward', 'f', 'fch', 'forwardchannel'].includes(command) && !['218656629720219658','218719595618500608','218562543185035266'].includes(message.author.id)) return;
+  //if(message.channel.id === '424964715547197455' && !['lick', 'llick', 'yoba', 'react', 'say', 'forward', 'f', 'fch', 'forwardchannel'].includes(command) && !['218656629720219658','218719595618500608','218562543185035266'].includes(message.author.id)) return;
   
   if(!['ping', 'help', 'test'].includes(command) && message.channel.type === 'dm') return message.channel.send('Извините, но данная команда не доступна в личных сообщениях с ботом.');
 
