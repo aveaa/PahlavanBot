@@ -39,7 +39,7 @@ handleDisconnect(con);
 client.on("ready", () => {
   client.channels.get('452557658759757828').send(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналах в ${client.guilds.size} гильдиях!`);
   console.log(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналх в ${client.guilds.size} гильдиях!`);
-  client.user.setActivity(`on Over999 servers`);
+  client.user.setActivity(`в очке Ектора`);
 });
 
 client.on("messageUpdate", (old_mess, new_mess) => {
