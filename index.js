@@ -773,66 +773,72 @@ client.on('message', async (message) => {
         });      
       };
     
-      if(command === 'role_delete'){
-        return message.channel.send('Извените, но данная команда не работает в данный момент. <@&424967798620422145> призываю вас!');
-        let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
+    if(command === 'role_delete'){
+    let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
     
-        if(!role) return message.channel.send('Данная роль не найдена.');
-        if(!message.member.roles.has(role.id)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
-    
-        con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
-          if(err) throw err;
-          if(!result[0]){
-            if(role.members.size > 1){
-              message.member.removeRole(role);
-              return message.channel.send('Роль была снята.')
-            };
-            message.guild.roles.get(role).delete();
-            message.channel.send('Роль удалена.')
-          };
-          if(result[0].cat === 0){
-            message.member.removeRole(role);
-            message.channel.send('Роль снята');
-          }
-          if(result[0].cat === 1) return message.channel.send('Вы не можете снять или удалить эту роль.');
-        });
+    console.log(role);
+    if(!role) return message.channel.send('Данная роль не найдена.');
+
+    if(!message.member.roles.has(role.id)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
+
+    con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
+      if(err) throw err;
+      if(!result[0]){
+        if(role.members.size > 1){
+          message.member.removeRole(role);
+          message.channel.send('Роль была снята.')
+        } else {
+          role.delete();
+          message.channel.send('Роль удалена.')
+        }
+      } else {
+        if(result[0].cat === 0) {
+          message.member.removeRole(role);
+          message.channel.send('Роль снята.');
+        } else if (result[0].cat === 1) {
+          message.channel.send('Вы не можете снять или удалить эту роль.')
+        } else {
+          message.channel.send('Неизвестная ошибка. Обратитесь к создателю.')
+        }
+      }
+    })
+  };
+
+  if(command === 'role_update'){
+    let sep = message.content.indexOf(';'),
+    sep2 = message.content.indexOf('#'),
+    rolename = message.content.slice(13,sep).trim(),
+    newrolename = message.content.slice(sep+1,sep2).trim(),
+    newrolecolor = message.content.slice(sep2+1).trim();
+
+    if(sep === -1 && sep2 === -1) return message.channel.send('Пожалуйста, соблюдайте синтаксис\n```'+prefix+'role_update <имя роли>; <новое имя> <#цвет>```');
+    if(sep === -1 && sep2 !== -1) rolename = newrolename = message.content.slice(13,sep2).trim();
+    if(sep !== -1 && sep2 === -1) {
+      newrolename = message.content.slice(sep+1).trim();
+      newrolecolor = message.guild.roles.find(r => r.name === rolename).color;
+    };
+
+    let role = message.guild.roles.find(r => r.name === rolename);
+
+    if(newrolename.length > 20 && newrolename !== rolename) return message.channel.send('Новое название роли слишком длинное. Максимальноя установленая длина - 20 символов.');
+    if(!role) return message.channel.send('Данная роль не найдена.');
+    if(!message.member.roles.has(role.id)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
+    if(role.members.size > 1) return message.channel.send('Вы являетесь не единственным обладателем этой роли, поэтому не можете изменить её.');
+
+    con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
+      if(err) throw err;
+      if(!result[0]){
+        role.edit({
+          name: newrolename,
+          color: newrolecolor
+        })
+       .then(updated => message.channel.send('Роль успешно изменена.'))
+       .catch(console.error);
+      } else {
+        message.channel.send('Вы не можете изменить эту роль.')
       };
-    
-      if(command === 'role_update'){
-        let sep = message.content.indexOf(';'),
-        sep2 = message.content.indexOf('#'),
-        rolename = message.content.slice(13,sep).trim(),
-        newrolename = message.content.slice(sep+1,sep2).trim(),
-        newrolecolor = message.content.slice(sep2+1).trim();
-    
-        if(sep === -1 && sep2 === -1) return message.channel.send('Пожалуйста, соблюдайте синтаксис\n```'+prefix+'role_update <имя роли>; <новое имя> <#цвет>```');
-        if(sep === -1 && sep2 !== -1) rolename = newrolename = message.content.slice(13,sep2).trim();
-        if(sep !== -1 && sep2 === -1){
-          newrolename = message.content.slice(sep+1).trim();
-          newrolecolor = message.guild.roles.find(r => r.name === rolename).color;
-        };
-         
-        let role = message.guild.roles.find(r => r.name === message.content.slice((prefix+command).length).trim());
-    
-        if(newrolename.length > 20 && newrolename !== rolename) return message.channel.send('Новое название роли слишком длинное. Максимальноя установленая длина - 20 символов.');
-        if(!role) return message.channel.send('Данная роль не найдена.');
-        if(!message.member.roles.has(role)) return message.channel.send('Вы не имеете данной роли, или допустили ошибку.');
-        if(role.members.size > 1) return message.channel.send('Вы являетесь не единственным обладателем этой роли, поэтому не можете удалить её.');
-    
-        con.query(`SELECT * FROM roles_${message.guild.id} WHERE id = '${role.id}'`, function (err, result) {
-          if(err) throw err;
-          if(!result[0]){
-            role.edit({
-              name: newrolename,
-              color: newrolecolor
-            })
-           .then(updated => message.channel.send('Роль успешно изменена.'))
-           .catch(console.error);
-          } 
-            else {message.channel.send('Вы не можете изменить эту роль.')
-          };
-        });
-      };
+    });
+  };
     
   if(command === 'forward' || command === 'f'){
     for(var i = 0; i<args.length; i++){
