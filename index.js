@@ -38,9 +38,9 @@ handleDisconnect(con);
 
 client.on("ready", () => {
   client.channels.get('452557658759757828').send(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналах в ${client.guilds.size} гильдиях!`);
-  console.log(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналх в ${client.guilds.size} гильдиях!`);
+  console.log(`Бот стартовал, вместе с ${client.users.size} пользователями, на ${client.channels.size} каналах в ${client.guilds.size} гильдиях!`);
   client.user.setActivity('Орден Геймеров', { type: 'WATCHING' });
-  сlient.guilds.forEach(g =>{
+  client.guilds.forEach(g =>{
     if(!['257519835448082433', '344016754554437643', '515892710205292555'].includes(g.id)){
       guild.leave()
         .then(g => client.channels.get('451753898458349568').send(`Я только что покинул сервер - ${g.name}`))
