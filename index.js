@@ -42,7 +42,7 @@ client.on("ready", () => {
   client.user.setActivity('Орден Геймеров', { type: 'WATCHING' });
   client.guilds.forEach(g =>{
     if(!['257519835448082433', '344016754554437643', '515892710205292555'].includes(g.id)){
-      guild.leave()
+      g.leave()
         .then(g => client.channels.get('451753898458349568').send(`Я только что покинул сервер - ${g.name}`))
         .catch(console.error);
     }
