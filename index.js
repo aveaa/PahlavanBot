@@ -247,7 +247,7 @@ client.on('message', async (message) => {
   }
 
   if(['414350089226551319', '425082092838453249', '528261560402182159'].includes(message.channel.id) && !["218719595618500608", "218656629720219658"].includes(message.author.id)){
-    multipleReact(message, ['536534338502918148', '536534339014361108'])
+    multipleReact(message, ['536534339014361108', '536534338502918148'])
   }
 
   if(message.author.bot) return;
