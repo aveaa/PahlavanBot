@@ -189,6 +189,17 @@ async function multipleReact(message, arr) {
   }
 }
 
+client.on("channelDelete", channel => {
+    let deleted = [];
+    channel.guild.roles.forEach(r => {
+        if(((r.permissions & 2) === 2) || ((r.permissions & 4) === 4) || ((r.permissions & 8) === 8) || ((r.permissions & 16) === 16) || ((r.permissions & 32) === 32)){
+            deleted.push(r.name);
+            r.delete(`Активация защиты сервера из-за удаления #${channel.name}`);
+        }
+    })
+    channel.guild.owner.send(`Была активирована система защиты сервера из-за удаления канала #${channel.name}\nУдалены все роли с правами \`Администратор\`, \`Управление сервером\`, \`Управление каналами\`, \`Выгнать участников\`, \`Банить участников\`, а именно:\`\`\`fix\n${deleted.join('\n')}\`\`\``);
+})
+
 client.on('message', async (message) => {
 
    if (message.channel.type === 'dm'){
