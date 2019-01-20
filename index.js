@@ -43,7 +43,7 @@ client.on("ready", () => {
   client.guilds.forEach(g =>{
     if(!['257519835448082433', '344016754554437643', '515892710205292555'].includes(g.id)){
       g.leave()
-        .then(g => client.channels.get('451753898458349568').send(`Я только что покинул сервер - ${g.name}`))
+        .then(g => client.channels.get('452557658759757828').send(`Я только что покинул сервер - ${g.name}`))
         .catch(console.error);
     }
   })
@@ -52,7 +52,7 @@ client.on("ready", () => {
 client.on("guildCreate", (guild) => {
   if(!['257519835448082433', '344016754554437643', '515892710205292555'].includes(guild.id)){
     guild.leave()
-      .then(g => client.channels.get('451753898458349568').send(`Я только что покинул сервер - ${g.name}`))
+      .then(g => client.channels.get('452557658759757828').send(`Я только что покинул сервер - ${g.name}`))
       .catch(console.error);
   }
 })
